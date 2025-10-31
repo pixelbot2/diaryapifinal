@@ -68,7 +68,7 @@ app.get("/generate", async (req, res) => {
     const ctx = canvas.getContext("2d");
     ctx.drawImage(bg, 0, 0);
 
-    ctx.font = "63px Arial";
+    ctx.font = "65px Arial";
     ctx.fillStyle = "#000000";
     ctx.textAlign = "start";
 
@@ -122,7 +122,7 @@ app.get("/generate-hw", async (req, res) => {
 
     ctx.drawImage(bg, 0, 0);
 
-    ctx.font = "63px Arial";
+    ctx.font = "65px Arial";
     ctx.fillStyle = "#000000";
     ctx.textAlign = "start";
 
