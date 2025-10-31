@@ -34,30 +34,32 @@ function wrapText(context, text, x, y, maxWidth, lineHeight) {
   });
 }
 
-// --- Root Endpoint ---
+// --- Root ---
 app.get("/", (req, res) =>
-  res.send("Diary API is running! Use /generate (no hw) or /generate-hw (with hw)")
+  res.send("Diary API is running! Use /generate or /generate-hw endpoints.")
 );
 
-// --- 1️⃣ NO HOMEWORK VERSION ---
+// --- NO HOMEWORK VERSION ---
 app.get("/generate", async (req, res) => {
   try {
     const { class: cls, subject, cw, remarks: remark, teacher, date } = req.query;
 
     if (!cls || !subject || !cw) {
-      return res.status(400).json({ error: "Missing required fields: class, subject, cw" });
+      return res.status(400).json({
+        error: "Missing required fields: class, subject, cw",
+      });
     }
 
-    // Date logic
+    // --- Date Logic ---
     let dateText;
     if (date) {
       dateText = `Date: ${date}`;
     } else {
-      const d = new Date();
-      const day = String(d.getDate()).padStart(2, "0");
-      const month = String(d.getMonth() + 1).padStart(2, "0");
-      const year = d.getFullYear();
-      const dayName = d.toLocaleString("en-US", { weekday: "long" });
+      const currentDate = new Date();
+      const day = String(currentDate.getDate()).padStart(2, "0");
+      const month = String(currentDate.getMonth() + 1).padStart(2, "0");
+      const year = currentDate.getFullYear();
+      const dayName = currentDate.toLocaleString("en-US", { weekday: "long" });
       dateText = `Date: ${day}.${month}.${year} (${dayName})`;
     }
 
@@ -75,7 +77,8 @@ app.get("/generate", async (req, res) => {
     ctx.fillText(teacher || "Nabila Tabassum", 692, 1029);
 
     wrapText(ctx, cw, 179, 1227, 2000, 70);
-    wrapText(ctx, remark || "N/A", 179, 1628, 2000, 70);
+    if (remark && remark.trim() !== "")
+      wrapText(ctx, remark, 179, 1700, 2000, 70);
 
     ctx.textAlign = "center";
     ctx.fillText(dateText, bg.width - 838, 775);
@@ -89,34 +92,34 @@ app.get("/generate", async (req, res) => {
   }
 });
 
-// --- 2️⃣ WITH HOMEWORK VERSION ---
+// --- WITH HOMEWORK VERSION ---
 app.get("/generate-hw", async (req, res) => {
   try {
     const { class: cls, subject, cw, hw, remarks: remark, teacher, date } = req.query;
 
     if (!cls || !subject || !cw || !hw) {
-      return res
-        .status(400)
-        .json({ error: "Missing required fields: class, subject, cw, hw" });
+      return res.status(400).json({
+        error: "Missing required fields: class, subject, cw, hw",
+      });
     }
 
-    // Date logic
+    // --- Date Logic ---
     let dateText;
     if (date) {
       dateText = `Date: ${date}`;
     } else {
-      const d = new Date();
-      const day = String(d.getDate()).padStart(2, "0");
-      const month = String(d.getMonth() + 1).padStart(2, "0");
-      const year = d.getFullYear();
-      const dayName = d.toLocaleString("en-US", { weekday: "long" });
+      const currentDate = new Date();
+      const day = String(currentDate.getDate()).padStart(2, "0");
+      const month = String(currentDate.getMonth() + 1).padStart(2, "0");
+      const year = currentDate.getFullYear();
+      const dayName = currentDate.toLocaleString("en-US", { weekday: "long" });
       dateText = `Date: ${day}.${month}.${year} (${dayName})`;
     }
 
-    // --- Load bg-v2 ---
     const bg = await loadImage("bg-v2.jpg");
     const canvas = createCanvas(bg.width, bg.height);
     const ctx = canvas.getContext("2d");
+
     ctx.drawImage(bg, 0, 0);
 
     ctx.font = "63px Arial";
@@ -129,7 +132,8 @@ app.get("/generate-hw", async (req, res) => {
 
     wrapText(ctx, cw, 181, 1240, 2000, 70);
     wrapText(ctx, hw, 181, 1668, 2000, 70);
-    wrapText(ctx, remark || "N/A", 181, 2100, 2000, 70);
+    if (remark && remark.trim() !== "")
+      wrapText(ctx, remark, 181, 2100, 2000, 70);
 
     ctx.textAlign = "center";
     ctx.fillText(dateText, bg.width - 800, 763);
@@ -139,16 +143,8 @@ app.get("/generate-hw", async (req, res) => {
     res.send(imgBuffer);
   } catch (error) {
     console.error("Error generating HW image:", error);
-    if (error.message.includes("ENOENT")) {
-      res.status(500).json({
-        error: "Failed to load bg-v2.jpg. Make sure it's in the same folder.",
-      });
-    } else {
-      res.status(500).json({ error: "Failed to generate HW image" });
-    }
+    res.status(500).json({ error: "Failed to generate HW image" });
   }
 });
 
-// --- Start server ---
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`API is listening on port ${PORT}!`));
+app.listen(3000, () => console.log("API is listening on port 3000!"));
